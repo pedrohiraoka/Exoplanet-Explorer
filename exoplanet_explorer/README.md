@@ -265,6 +265,19 @@ exoplanet-explorer analyze \
     --output analyzed_planets.csv
 ```
 
+## Tests
+	
+search --limit 5
+habitable --conservative
+earth-like --min-radius 0.8 --max-radius 1.5
+search --columns ... --where "pl_rade BETWEEN 0.8 AND 1.5"
+analyze --input all_planets.csv --anomalies
+search --method Transit --limit 10
+search --where "hostname LIKE '%TRAPPIST%'"
+search --where "pl_insol BETWEEN 0.8 AND 1.2"
+search --where "pl_rade < 1.3 AND pl_insol BETWEEN 0.8 AND 1.2"
+python -m unittest tests.test_api
+
 ## Development
 
 ### Running Tests
