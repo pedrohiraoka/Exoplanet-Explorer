@@ -263,11 +263,18 @@ def handle_search(args: argparse.Namespace) -> int:
         builder = QueryBuilder()
         builder.select(columns).from_table(args.table).set_limit(args.limit)
 
+        # Build WHERE conditions
+        where_parts = []
+        
         if args.where:
-            builder._conditions.append(args.where)
+            where_parts.append(args.where)
 
         if args.method:
-            builder.where("discoverymethod", "=", args.method)
+            where_parts.append(f"discoverymethod = '{args.method}'")
+        
+        if where_parts:
+            full_where = " AND ".join(where_parts)
+            builder._conditions.insert(0, full_where)
 
         if args.order:
             ascending = not args.order.startswith("-")
