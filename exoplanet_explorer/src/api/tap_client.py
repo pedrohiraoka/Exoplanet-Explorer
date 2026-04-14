@@ -95,10 +95,12 @@ class TAPClient:
         Raises:
             TAPQueryError: If the response cannot be parsed.
         """
+        import io
+        
         if format == "csv":
-            return pd.read_csv(response.text)
+            return pd.read_csv(io.StringIO(response.text))
         elif format == "json":
-            return pd.read_json(response.text)
+            return pd.read_json(io.StringIO(response.text))
         elif format == "votable":
             try:
                 from astropy.io.votable import parse
@@ -108,9 +110,9 @@ class TAPClient:
                 return pd.DataFrame(votable.get_first_table().to_array())
             except ImportError:
                 logger.warning("astropy not available, falling back to CSV parsing")
-                return pd.read_csv(response.text)
+                return pd.read_csv(io.StringIO(response.text))
         else:
-            return pd.read_csv(response.text)
+            return pd.read_csv(io.StringIO(response.text))
 
     def query(self, adql: str, format: str = "csv") -> pd.DataFrame:
         """Execute an ADQL query against the TAP service.

@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 DEFAULT_COLUMNS = [
     "pl_name",
     "pl_rade",
-    "pl_mass",
+    "pl_bmasse",
     "pl_orbper",
     "pl_orbsmax",
     "pl_insol",
@@ -316,7 +316,7 @@ def handle_earth_like(args: argparse.Namespace) -> int:
         client = TAPClient()
 
         columns = [
-            "pl_name", "pl_rade", "pl_mass", "pl_orper", "pl_orbsmax",
+            "pl_name", "pl_rade", "pl_bmasse", "pl_orper", "pl_orbsmax",
             "pl_insol", "st_mass", "st_rad", "st_teff", "disc_method", "hostname"
         ]
 
