@@ -48,17 +48,24 @@ class CandidateFilter:
                 (result["pl_rade"] >= min_radius) & (result["pl_rade"] <= max_radius)
             ]
 
+        # Only apply period filter if column exists and has valid data
         if "pl_orper" in result.columns:
-            result = result[
-                (result["pl_orper"] >= min_period) & (result["pl_orper"] <= max_period)
-            ]
+            # Use more lenient filtering - only filter if we have valid period data
+            valid_periods = result["pl_orper"].notna()
+            if valid_periods.any():
+                period_mask = (result["pl_orper"] >= min_period) & (result["pl_orper"] <= max_period)
+                # Include rows with NaN periods as they might still be candidates
+                result = result[~valid_periods | period_mask]
 
+        # Apply insolation filter only if data is available and in reasonable range
         if "pl_insol" in result.columns:
             insol_min = 0.3
             insol_max = 1.5
-            result = result[
-                (result["pl_insol"] >= insol_min) & (result["pl_insol"] <= insol_max)
-            ]
+            valid_insol = result["pl_insol"].notna()
+            if valid_insol.any():
+                insol_mask = (result["pl_insol"] >= insol_min) & (result["pl_insol"] <= insol_max)
+                # Include rows without insolation data as they might still be candidates
+                result = result[~valid_insol | insol_mask]
 
         return result.reset_index(drop=True)
 
@@ -134,10 +141,10 @@ class CandidateFilter:
         if "pl_numsp" in result.columns:
             result = result[result["pl_numsp"] >= min_signals]
 
-        if "disc_method" in result.columns:
+        if "discoverymethod" in result.columns:
             if require_radial_velocity:
                 rv_methods = ["Radial Velocity", "RV", "radial velocity"]
-                mask = result["disc_method"].isin(rv_methods)
+                mask = result["discoverymethod"].isin(rv_methods)
                 result = result[mask]
 
         if "sy_snum" in result.columns:
@@ -163,14 +170,14 @@ class CandidateFilter:
 
         result = df.copy()
 
-        if "disc_method" not in result.columns:
+        if "discoverymethod" not in result.columns:
             return result
 
         if isinstance(methods, str):
             methods = [methods]
 
         normalized_methods = [m.lower() for m in methods]
-        mask = result["disc_method"].str.lower().isin(normalized_methods)
+        mask = result["discoverymethod"].str.lower().isin(normalized_methods)
         result = result[mask]
 
         return result.reset_index(drop=True)

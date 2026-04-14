@@ -316,12 +316,14 @@ def handle_earth_like(args: argparse.Namespace) -> int:
         client = TAPClient()
 
         columns = [
-            "pl_name", "pl_rade", "pl_bmasse", "pl_orper", "pl_orbsmax",
-            "pl_insol", "st_mass", "st_rad", "st_teff", "disc_method", "hostname"
+            "pl_name", "pl_rade", "pl_bmasse", "pl_orbper", "pl_orbsmax",
+            "pl_insol", "st_mass", "st_rad", "st_teff", "discoverymethod", "hostname"
         ]
 
         builder = QueryBuilder()
         builder.select(columns).from_table("ps").set_limit(args.limit)
+        # Add filter for planets with radius data and reasonable insolation values
+        builder._conditions.append("pl_rade IS NOT NULL AND pl_rade > 0.5 AND pl_rade < 3.0")
 
         logger.info("Searching for Earth-like exoplanets...")
         df = builder.execute(client)
@@ -370,12 +372,14 @@ def handle_habitable(args: argparse.Namespace) -> int:
         client = TAPClient()
 
         columns = [
-            "pl_name", "pl_rade", "pl_orper", "pl_orbsmax", "pl_insol",
-            "st_lum", "st_mass", "st_rad", "disc_method", "hostname"
+            "pl_name", "pl_rade", "pl_orbper", "pl_orbsmax", "pl_insol",
+            "st_lum", "st_mass", "st_rad", "discoverymethod", "hostname"
         ]
 
         builder = QueryBuilder()
         builder.select(columns).from_table("ps").set_limit(args.limit)
+        # Add filter for planets with insolation data in a reasonable range
+        builder._conditions.append("pl_insol IS NOT NULL AND pl_insol > 0.1 AND pl_insol < 10.0")
 
         logger.info("Searching for planets in habitable zone...")
         df = builder.execute(client)
