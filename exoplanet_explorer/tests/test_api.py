@@ -199,7 +199,8 @@ class TestQueryBuilder(unittest.TestCase):
             .build()
         )
 
-        self.assertIn("LIMIT 100", query)
+        # For Oracle-based TAP (ps table), uses TOP instead of LIMIT
+        self.assertIn("TOP 100", query)
 
     def test_distinct(self):
         """Test DISTINCT clause."""
@@ -230,7 +231,8 @@ class TestQueryBuilder(unittest.TestCase):
         self.assertIn("FROM ps", query)
         self.assertIn("WHERE", query)
         self.assertIn("ORDER BY", query)
-        self.assertIn("LIMIT 100", query)
+        # For Oracle-based TAP (ps table), uses TOP instead of LIMIT
+        self.assertIn("TOP 100", query)
 
     def test_no_columns_raises_error(self):
         """Test that build raises error without columns."""
